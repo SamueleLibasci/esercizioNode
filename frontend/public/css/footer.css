@@ -1,10 +1,10 @@
 /* ===== FOOTER ===== */
 .footer {
     margin-top: auto;
-    background: #ffffff;
-    padding: 15px;
+    background: rgba(15, 23, 42, 0.96);
+    padding: 18px 16px;
     text-align: center;
-    color: #666;
+    color: #dfeafc;
     font-size: 14px;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 -10px 24px rgba(15, 23, 42, 0.08);
 }

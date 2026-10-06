@@ -10,29 +10,39 @@
 </head>
 
 <body>
-<div id="navbar"></div>
-    <script>
-        fetch("components/navbar.html") //scarica il file da componenets
-            .then(res => res.text()) //quando fetch finisce genera il response e prendi il contenuto come stringa
-            .then(html => document.getElementById("navbar").innerHTML = html); //inserisci in navbar stringa dentro al div 
-    </script>
-<div class="login-wrapper">
-    <div class="login-box">
-        <h2>Login</h2>
-        <form action="/login" method="POST">
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Accedi</button>
-        </form>
-    </div>
-</div>
-    <!-- FOOTER -->
+    <div id="navbar"></div>
+
+    <main class="page-shell">
+        <div class="login-box">
+            <h2>Login</h2>
+            <form action="/login" method="POST">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit">Accedi</button>
+            </form>
+        </div>
+    </main>
+
     <div id="footer"></div>
 
     <script>
-        fetch("components/footer.html")
-            .then(res => res.text())
-            .then(html => document.getElementById("footer").innerHTML = html);
+        const navbar = document.getElementById('navbar');
+        fetch('components/navbar.html')
+            .then(response => response.text())
+            .then(html => {
+                navbar.innerHTML = html;
+                const currentPath = window.location.pathname;
+                document.querySelectorAll('.nav-links a').forEach(link => {
+                    const target = link.getAttribute('href');
+                    if ((target === '/' && currentPath === '/') || target === currentPath) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+        fetch('components/footer.html')
+            .then(response => response.text())
+            .then(html => document.getElementById('footer').innerHTML = html);
     </script>
 </body>
 

@@ -1,4 +1,4 @@
-var express = require("express");
+﻿var express = require("express");
 var path = require("path");
 var app = express();
 var port = 3000;
@@ -44,7 +44,7 @@ app.post('/weather', async (req, res) => {
     }
 
     try {
-        const apiKey = process.env.OPENWEATHER_API_KEY || '9c7f07df6f437a5205d908e5ad4e7dc9';
+        const apiKey = process.env.OPENWEATHER_API_KEY || '11285f08bb363a34dda96432d5c6eb8b';
         const response = await fetch(
             `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=it`
         );
@@ -89,5 +89,3 @@ app.listen(port, () => {
     console.log("Server in ascolto alla porta " + port);
     console.log('accedi all indirizzo http://localhost:' + port);
 });
-
-

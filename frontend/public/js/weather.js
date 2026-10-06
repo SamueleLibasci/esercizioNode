@@ -1,49 +1,55 @@
-document.getElementById("weather-form").addEventListener("submit", async function(e) {
-    e.preventDefault(); // evita il redirect
+const form = document.getElementById('weather-form');
+const resultBox = document.getElementById('weather-result');
 
-    const city = document.getElementById("city-input").value;
-
-    const res = await fetch("/weather", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ city })
-    });
-
-    const data = await res.json(); // eliminato text, per utilizzare il json dal server
-
-    const box = document.getElementById("weather-result"); 
-
-    // Mostra il box
-    box.style.display = "block";
-
-    // Se la città non esiste
-    if (data.error) {
-        box.innerHTML = `
-            <div class="weather-response-box subtitle">
-                ${data.message}
-            </div>
-        `;
+function renderResult(data) {
+    if (!data || !data.ok) {
+        resultBox.innerHTML = `<div class="error-state">${data?.message || 'Si è verificato un errore.'}</div>`;
         return;
     }
 
-    // Mostra la card meteo
-    box.innerHTML = `
-        <div class="weather-response-box subtitle">
-            <strong>${data.city}</strong><br>
-            ${data.description}<br>
-            Temperatura: ${data.temperature}°C<br>
-            Umidità: ${data.humidity}%<br>
-            Vento: ${data.wind} m/s
+    resultBox.innerHTML = `
+        <div class="weather-result-card">
+            <div class="weather-city">Meteo a ${data.city}</div>
+            <div class="weather-condition">${data.condition}</div>
+            <div class="weather-temp">${data.temperature}°C</div>
+            <div class="weather-message">${data.message}</div>
+            <div class="weather-meta">Umidità: ${data.humidity}% · Vento: ${data.wind} m/s</div>
         </div>
     `;
-});
-/*DOM Javascript della pagina lato client ha queste caratteristicche:
-- seleziona elementi del DOM (getElementById)
+}
 
-- intercetta un evento (addEventListener("submit"))
+if (form && resultBox) {
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-- legge un valore da un input (city-input)
+        const city = document.getElementById('city-input')?.value.trim();
 
-- aggiorna il DOM (innerHTML)
+        if (!city) {
+            renderResult({ ok: false, message: 'Inserisci il nome di una città.' });
+            return;
+        }
 
-- usa fetch() per chiamare il tuo backend */
+        resultBox.innerHTML = '<div class="loading-state">Sto cercando il meteo...</div>';
+
+        try {
+            const response = await fetch('/weather', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ city })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.ok) {
+                throw new Error(data.message || 'Errore nella richiesta meteo.');
+            }
+
+            renderResult(data);
+        } catch (error) {
+            renderResult({ ok: false, message: error.message || 'Si è verificato un errore.' });
+        }
+    });
+}
+

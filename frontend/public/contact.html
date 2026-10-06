@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact</title>
+    <link rel="stylesheet" href="css/contact.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+</head>
+
+<body>
+    <div id="navbar"></div>
+
+    <main class="page-shell">
+        <section class="content-card contact-layout">
+            <div class="contact-info">
+                <span class="badge">Contact</span>
+                <h1>Let’s talk</h1>
+                <p>Need help with your project or have a question? We are here for you.</p>
+
+                <ul>
+                    <li>Email: hello@myapp.com</li>
+                    <li>Phone: +39 02 1234 5678</li>
+                    <li>Address: Via Roma 12, Milan</li>
+                </ul>
+            </div>
+
+            <form class="contact-form">
+                <label>
+                    Name
+                    <input type="text" placeholder="Your name" required>
+                </label>
+                <label>
+                    Email
+                    <input type="email" placeholder="Your email" required>
+                </label>
+                <label>
+                    Message
+                    <textarea rows="5" placeholder="Write your message..." required></textarea>
+                </label>
+                <button type="submit">Send message</button>
+            </form>
+        </section>
+    </main>
+
+    <div id="footer"></div>
+
+    <script>
+        const navbar = document.getElementById('navbar');
+        fetch('components/navbar.html')
+            .then(response => response.text())
+            .then(html => {
+                navbar.innerHTML = html;
+                const currentPath = window.location.pathname;
+                document.querySelectorAll('.nav-links a').forEach(link => {
+                    const target = link.getAttribute('href');
+                    if ((target === '/' && currentPath === '/') || target === currentPath) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+        fetch('components/footer.html')
+            .then(response => response.text())
+            .then(html => document.getElementById('footer').innerHTML = html);
+    </script>
+</body>
+
+</html>
