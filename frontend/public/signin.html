@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign In</title>
+
+    <!-- CSS navbar + footer + signin -->
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/signin.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div id="navbar"></div>
+    <script>
+        fetch("components/navbar.html")
+            .then(res => res.text())
+            .then(html => document.getElementById("navbar").innerHTML = html);
+    </script>
+
+    <!-- SIGNIN FORM -->
+    <div class="signin-wrapper">
+        <div class="signin-box">
+            <h2>Registrati</h2>
+
+            <form action="/signin" method="POST">
+
+                <input type="text" name="nome" placeholder="Nome" required>
+                <input type="text" name="cognome" placeholder="Cognome" required>
+
+                <input type="email" name="email" placeholder="Email" required>
+
+                <input type="password" name="password" placeholder="Password" required>
+                <input type="password" name="confirm_password" placeholder="Conferma Password" required>
+
+                <button type="submit">Crea Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div id="footer"></div>
+    <script>
+        fetch("components/footer.html")
+            .then(res => res.text())
+            .then(html => document.getElementById("footer").innerHTML = html);
+    </script>
+
+</body>
+</html>

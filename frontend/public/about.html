@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>About</title>
+
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/about.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div id="navbar"></div>
+    <script>
+        fetch("components/navbar.html")
+            .then(res => res.text())
+            .then(html => document.getElementById("navbar").innerHTML = html);
+    </script>
+
+    <!-- ABOUT SECTION -->
+    <div class="about-wrapper">
+        <div class="about-box">
+
+            <h2>Chi Siamo</h2>
+
+            <p>
+                MyApp nasce nel 2024 come progetto personale con un obiettivo semplice:
+                creare un'applicazione moderna, veloce e intuitiva per gestire informazioni
+                quotidiane come meteo, accesso utenti e contenuti personalizzati.
+            </p>
+
+            <p>
+                Nel corso del tempo, MyApp è cresciuta grazie alla passione per il design,
+                la programmazione e la volontà di offrire un'esperienza pulita e professionale.
+                Oggi il progetto continua ad evolversi, integrando nuove funzionalità e
+                migliorando costantemente l'interfaccia.
+            </p>
+
+            <h3>La Nostra Storia</h3>
+
+            
+            <p>
+                Il team è composto da sviluppatori, designer e appassionati di tecnologia
+                che credono nella semplicità e nella cura dei dettagli. Ogni funzionalità
+                viene progettata per essere chiara, utile e piacevole da utilizzare.
+            </p>
+
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div id="footer"></div>
+    <script>
+        fetch("components/footer.html")
+            .then(res => res.text())
+            .then(html => document.getElementById("footer").innerHTML = html);
+    </script>
+
+</body>
+</html>

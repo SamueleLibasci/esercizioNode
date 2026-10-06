@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+</head>
+
+<body>
+    <div id="navbar"></div>
+
+    <script>
+        fetch("components/navbar.html")
+            .then(res => res.text())
+            .then(html => document.getElementById("navbar").innerHTML = html);
+    </script>
+
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <h1>Benvenuto</h1>
+        <p>Questa è la homepage del tuo progetto.</p>
+    </section>
+
+    <!-- FOOTER -->
+    <div id="footer"></div>
+
+    <script>
+        fetch("components/footer.html")
+            .then(res => res.text())
+            .then(html => document.getElementById("footer").innerHTML = html);
+    </script>
+
+</body>
+
+</html>
