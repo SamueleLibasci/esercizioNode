@@ -44,7 +44,7 @@ app.post('/weather', async (req, res) => {
     }
 
     try {
-        const apiKey = process.env.OPENWEATHER_API_KEY || '11285f08bb363a34dda96432d5c6eb8b';
+        const apiKey = process.env.OPENWEATHER_API_KEY || '9c7f07df6f437a5205d908e5ad4e7dc9';
         const response = await fetch(
             `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=it`
         );

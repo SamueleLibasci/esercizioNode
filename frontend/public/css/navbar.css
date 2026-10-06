@@ -1,9 +1,21 @@
 /* ===== NAVBAR ===== */
+:root {
+    --bg: #f5f3f0;
+    --surface: #ffffff;
+    --surface-alt: #f7f5f4;
+    --border: #e7e5e4;
+    --text: #111827;
+    --muted: #5f6672;
+    --primary: #1f2937;
+    --primary-soft: rgba(255, 255, 255, 0.08);
+    --shadow: 0 18px 40px rgba(17, 24, 39, 0.08);
+}
+
 .navbar {
     width: 100%;
-    background: rgba(15, 23, 42, 0.96);
+    background: rgba(17, 24, 39, 0.96);
     padding: 18px 30px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -29,18 +41,17 @@
 
 .nav-links a {
     text-decoration: none;
-    color: #dfeafc;
+    color: #e5e7eb;
     font-size: 15px;
     padding: 9px 14px;
     border-radius: 999px;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .nav-links a:hover,
 .nav-links a.active {
-    background: #2563eb;
+    background: var(--primary-soft);
     color: #ffffff;
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
 }
 
 @media (max-width: 600px) {
