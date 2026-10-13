@@ -1,68 +1,56 @@
-/* ===== NAVBAR ===== */
-:root {
-    --bg: #f5f3f0;
-    --surface: #ffffff;
-    --surface-alt: #f7f5f4;
-    --border: #e7e5e4;
-    --text: #111827;
-    --muted: #5f6672;
-    --primary: #1f2937;
-    --primary-soft: rgba(255, 255, 255, 0.08);
-    --shadow: 0 18px 40px rgba(17, 24, 39, 0.08);
-}
+/*  NAVBAR  */                                 /* Sezione navbar. */
+.navbar {                                      /* Selettore navbar. */
+    width: 100%;                               /* Larghezza piena. */
+    background: #ffffff;                       /* Sfondo bianco. */
+    padding: 15px 30px;                        /* Spazio interno. */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);    /* Ombra. */
+    display: flex;                             /* Layout flessivo. */
+    justify-content: space-between;            /* Spazia logo e link. */
+    align-items: center;                       /* Allinea al centro verticalmente. */
+    position: sticky;   /* rimane in alto */   /* Rimanere in alto durante lo scroll. */
+    top: 0;                                    /* Attacca in alto. */
+    z-index: 100;                              /* Sopra gli altri elementi. */
+}                                              /* Chiude navbar. */
 
-.navbar {
-    width: 100%;
-    background: rgba(17, 24, 39, 0.96);
-    padding: 18px 30px;
-    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
+.nav-logo {                                    /* Logo. */
+    font-size: 22px;                           /* Dimensione. */
+    font-weight: bold;                         /* Grassetto. */
+    color: #333;                               /* Colore. */
+    letter-spacing: 0.5px;                     /* Spaziatura. */
+}                                              /* Chiude logo. */
 
-.nav-logo {
-    font-size: 22px;
-    font-weight: 700;
-    color: #f8fafc;
-    letter-spacing: 0.6px;
-}
+/* LINKS */                                    /* Sezione link. */
+.nav-links {                                   /* Lista link. */
+    list-style: none;                          /* Rimuove pallini. */
+    display: flex;                             /* Layout orizzontale. */
+    gap: 25px;                                 /* Spazio tra link. */
+}                                              /* Chiude lista. */
 
-.nav-links {
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
+.nav-links a {                                 /* Link. */
+    text-decoration: none;                     /* Rimuove sottolineatura. */
+    color: #0078ff;                            /* Colore azzurro. */
+    font-size: 16px;                           /* Dimensione. */
+    padding: 6px 10px;                         /* Spazio interno. */
+    border-radius: 6px;                        /* Angoli. */
+    transition: 0.25s ease;                    /* Transizione. */
+}                                              /* Chiude link. */
 
-.nav-links a {
-    text-decoration: none;
-    color: #e5e7eb;
-    font-size: 15px;
-    padding: 9px 14px;
-    border-radius: 999px;
-    transition: background 0.2s ease, color 0.2s ease;
-}
+.nav-links a:hover {                           /* Hover link. */
+    background: #e8f1ff;                       /* Sfondo chiaro. */
+    color: #005fcc;                            /* Colore scuro. */
+}                                              /* Chiude hover. */
 
-.nav-links a:hover,
-.nav-links a.active {
-    background: var(--primary-soft);
-    color: #ffffff;
-}
+/*  MOBILE  */                                 /* Sezione mobile. */
+@media (max-width: 600px) {                    /* Schermi piccoli. */
+    .navbar {                                  /* Navbar mobile. */
+        flex-direction: column;                /* Colonna. */
+        gap: 10px;                             /* Spazio. */
+        padding: 20px;                         /* Padding. */
+    }                                          /* Chiude navbar mobile. */
 
-@media (max-width: 600px) {
-    .navbar {
-        flex-direction: column;
-        gap: 12px;
-        padding: 18px 20px;
-    }
-
-    .nav-links {
-        justify-content: center;
-        gap: 8px;
-    }
-}
+    .nav-links {                               /* Lista mobile. */
+        flex-direction: column;                /* Colonna. */
+        gap: 12px;                             /* Spazio. */
+        text-align: center;                    /* Centrato. */
+    }                                          /* Chiude lista mobile. */
+}                                              /* Chiude media query. */

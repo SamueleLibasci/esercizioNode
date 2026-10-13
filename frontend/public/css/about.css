@@ -1,99 +1,88 @@
-:root {
-    --bg: #f5f3f0;
-    --surface: #ffffff;
-    --surface-alt: #f7f5f4;
-    --border: #e7e5e4;
-    --text: #111827;
-    --muted: #5f6672;
-    --primary: #1f2937;
-    --shadow: 0 18px 40px rgba(17, 24, 39, 0.08);
-}
+/* ===== RESET ===== */                        /* Sezione reset. */
+* {                                            /* Universale. */
+    margin: 0;                                 /* Azzera margini. */
+    padding: 0;                                /* Azzera padding. */
+    box-sizing: border-box;                    /* Include bordi e padding. */
+}                                              /* Chiude reset. */
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+/* ===== BODY ===== */                         /* Sezione body. */
+body {                                         /* Body. */
+    font-family: Arial, sans-serif;            /* Font. */
+    background: linear-gradient(135deg, #e3e9f0, #cfd9e8); /* Sfondo gradiente. */
+    min-height: 100vh;                         /* Altezza minima. */
+    display: flex;                             /* Flex. */
+    flex-direction: column;                    /* Colonna. */
+}                                              /* Chiude body. */
 
-body {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    background: var(--bg);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    color: var(--text);
-}
+/* ===== ABOUT WRAPPER ===== */                /* Sezione wrapper About. */
+.about-wrapper {                               /* Wrapper. */
+    flex: 1;                                   /* Occupa spazio. */
+    display: flex;                             /* Flex. */
+    justify-content: center;                   /* Centra orizzontalmente. */
+    align-items: center;                       /* Centra verticalmente. */
+    padding: 20px;                             /* Spazio interno. */
+}                                              /* Chiude wrapper. */
 
-.page-shell {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-}
+/* ===== ABOUT BOX ===== */                    /* Sezione box About. */
+.about-box {                                   /* Box. */
+    background: #ffffff;                       /* Sfondo bianco. */
+    padding: 40px;                             /* Spazio interno. */
+    border-radius: 12px;                       /* Angoli. */
+    width: 100%;                               /* Larghezza piena. */
+    max-width: 600px;                          /* Larghezza massima. */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); /* Ombra. */
+    animation: fadeIn 0.4s ease;               /* Animazione. */
+}                                              /* Chiude box. */
 
-.content-card {
-    max-width: 920px;
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    box-shadow: var(--shadow);
-    padding: 42px 32px;
-}
+.about-box h2 {                                /* Titolo. */
+    text-align: center;                        /* Centrato. */
+    margin-bottom: 20px;                       /* Margine. */
+    color: #333;                               /* Colore. */
+    font-weight: 600;                          /* Spessore. */
+}                                              /* Chiude h2. */
 
-.badge {
-    display: inline-block;
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    color: var(--primary);
-    padding: 8px 14px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 18px;
-}
+.about-box h3 {                                /* Sottotitolo. */
+    margin-top: 25px;                          /* Margine sopra. */
+    margin-bottom: 15px;                       /* Margine sotto. */
+    color: #333;                               /* Colore. */
+    font-weight: 600;                          /* Spessore. */
+}                                              /* Chiude h3. */
 
-.content-card h1 {
-    font-size: clamp(2rem, 3vw, 3rem);
-    margin-bottom: 16px;
-    color: var(--text);
-}
+.about-box p {                                 /* Paragrafo. */
+    color: #555;                               /* Colore. */
+    font-size: 16px;                           /* Dimensione. */
+    line-height: 1.6;                          /* Altezza riga. */
+}                                              /* Chiude p. */
 
-.content-card p {
-    line-height: 1.7;
-    color: var(--muted);
-    max-width: 700px;
-}
+/* ===== FEATURE LIST ===== */                 /* Sezione lista. */
+.feature-list {                                /* Lista. */
+    list-style: none;                          /* Rimuove pallini. */
+    padding: 0;                                /* Azzera padding. */
+}                                              /* Chiude lista. */
 
-.feature-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(180px, 1fr));
-    gap: 20px;
-    margin-top: 32px;
-}
+.feature-list li {                             /* Elemento lista. */
+    padding: 10px 0 10px 28px;                 /* Spazio interno. */
+    color: #555;                               /* Colore. */
+    position: relative;                        /* Posizione relativa per pseudo-elemento. */
+}                                              /* Chiude li. */
 
-.feature-item {
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 22px 18px;
-}
+.feature-list li::before {                     /* Pseudo-elemento prima di ogni elemento. */
+    content: "✓";                              /* Inserisce segno di spunta. */
+    position: absolute;                        /* Posizionamento assoluto. */
+    left: 0;                                   /* Allinea a sinistra. */
+    color: #0078ff;                            /* Colore azzurro. */
+    font-weight: bold;                         /* Grassetto. */
+}                                              /* Chiude pseudo-elemento. */
 
-.feature-item h3 {
-    margin-bottom: 10px;
-    color: var(--text);
-}
+/* ===== ANIMATION ===== */                    /* Sezione animazione. */
+@keyframes fadeIn {                            /* Definizione. */
+    from { opacity: 0; transform: translateY(10px); } /* Inizio. */
+    to { opacity: 1; transform: translateY(0); } /* Fine. */
+}                                              /* Chiude keyframes. */
 
-.feature-item p {
-    font-size: 0.96rem;
-    color: var(--muted);
-}
-
-@media (max-width: 700px) {
-    .feature-grid {
-        grid-template-columns: 1fr;
-    }
-}
+/* ===== MOBILE ===== */                       /* Sezione mobile. */
+@media (max-width: 600px) {                    /* Schermi piccoli. */
+    .about-box {                               /* Box su mobile. */
+        padding: 25px;                         /* Riduce padding. */
+    }                                          /* Chiude box mobile. */
+}                                              /* Chiude media query. */
