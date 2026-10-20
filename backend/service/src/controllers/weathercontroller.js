@@ -19,8 +19,11 @@ exports.weatherController = async (req, res) => {
 
     try {                                            
         const data = await getWeather(city, WEATHER_API_KEY); // Chiama l'API meteo di OpenWeatherMap.
+        
+        console.log(data.error);
+        console.log(data.cod);
 
-        if (data.cod !== 200) {                       // Controlla se la risposta è valida.
+        if (data.error || data.cod !== 200) {                       // Controlla se la risposta è valida.
             return res.json({
                 error: true,
                 message: "Città non trovata"

@@ -1,0 +1,34 @@
+const express = require("express");
+const { createProxyMiddleware } = require("http-proxy-middleware"); //definizione reverse proxy
+const config = require("../config/env");
+
+const app = express();
+
+// Proxy verso il service
+//quello che si ottiene qui è l'api versioning + endpoint hiding --> convenzione goole, paypall, github microsoft ecc
+//significa che l'utente vede e digita per il servizio /api/v1/ (es: /api/v1/weather per accedere al weather service)
+//in realta la parte finale è estratta dal servizio proxy per il pathrewrite ed il service vede solo /weather
+//significa nascondere gli endpoint all'utente con l'introduzione di eleemnti non facolemnte risalibili
+//vanno cambiati anche endpoint della pagina statica nav che ridefinisce i percorsi nascosti e nel file
+// weather.js che costituisce il dom js ///// va infine modificato il post togliendo l'action per delegare l'azione di redirect al g
+
+/*quindi questi per esempio sono quelli veri del service: http://localhost:3000/signin,
+questi quelli mascheratihttp://localhost:4000/api/v1/signin*/
+
+
+app.use("/api/v1", createProxyMiddleware({ //tutte le richieste api vengono gestite qui
+    target: config.SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: {
+        "^/api/v1": ""
+    }
+}));
+
+app.listen(config.GATEWAY_PORT, () => {
+    console.log(`Gateway attivo su http://localhost:${config.GATEWAY_PORT}/api/v1`);
+});
+
+
+
+
+
