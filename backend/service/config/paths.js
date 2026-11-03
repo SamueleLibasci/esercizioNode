@@ -1,15 +1,17 @@
 const path = require("path");
 
-// Directory ROOT del servizio
+/**
+ * Mappatura centralizzata dei percorsi del filesystem per il service.
+ * Consente di importare percorsi assoluti affidabili in qualsiasi modulo.
+ */
 const ROOT = path.join(__dirname, "..");
 const FRONTEND_PUBLIC = path.join(ROOT, "..", "..", "frontend", "public");
-// Percorsi principali
+
 module.exports = {
-    ROOT,
+    ROOT: ROOT,
     SRC: path.join(ROOT, "src"),
-    //PUBLIC: path.join(ROOT, "public"),
     PUBLIC: FRONTEND_PUBLIC,
-    ROUTES: path.join(ROOT, "src", "routes"),
     CONTROLLERS: path.join(ROOT, "src", "controllers"),
+    ROUTES: path.join(ROOT, "src", "route"),
     UTILS: path.join(ROOT, "src", "utils")
 };

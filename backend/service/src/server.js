@@ -1,35 +1,36 @@
-var express = require("express");              // Importa il framework Express.
-var path = require("path");                    // Importa il modulo per gestire i percorsi dei file.
-var app = express();                           // Crea l'applicazione Express.
-var port = 3000;                               // Definisce la porta del server.
-var bodyParser = require("body-parser");       // Importa il middleware per leggere il corpo delle richieste.
-var axios = require("axios");     
-require("dotenv").config();             // Importa il client HTTP per chiamare l'API meteo.
+const express = require("express");
+const path = require("path");
+const bodyParser = require("body-parser");
 
-const pageroutes = require("./routes/pageroutes");
-const weather = require("./routes/weather");            // per gestire la parte di routing delle pagine statiche, importo il file pageroutes.js che contiene le route per le pagine statiche.
-const login = require("./routes/login");
-const signup = require("./routes/signup");
-// il body parser serve per leggere i dati inviati dal form
-app.use(bodyParser.json());                    // Abilita la lettura del corpo in formato JSON.
-app.use(bodyParser.urlencoded({ extended: true })); // Abilita la lettura dei dati inviati dai form HTML.
+// Caricamento variabili d'ambiente (.env nel backend/service)
+require("dotenv").config({ path: path.join(__dirname, "../.env") });
+require("dotenv").config();
 
+const { PORT } = require("./utils/constants");
+const port = PORT || 3000;
 
-app.use(express.static(path.join(__dirname, "../../../frontend/public"))); // Serve i file statici della cartella public.
+const app = express();
 
+// Middleware di parsing: elabora richieste JSON e form URL-encoded (POST da form HTML)
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/", pageroutes); // Usa le route definite in pageroutes.js per tutte le richieste alla radice.
-app.use("/", weather);  // usa le route di weather
-app.use("/", login);
-app.use("/", signup);
-//definizione dello stato visualizzabile da prompt
-app.listen(port, () => {                        // Avvia il server sulla porta definita.
-    console.log("Server in ascolto alla porta " + port); // Scrive in console la porta di ascolto.
-    console.log('accedi all indirizzo http://localhost:' + port) // Scrive in console l'indirizzo da aprire nel browser.
-}); // Chiude il metodo listen.
+// Registrazione router applicativi
+const pageRoutes = require("./route/pageroutes");
+const weatherRoutes = require("./route/weather");
+const authRoutes = require("./route/auth");
+const signinRoutes = require("./route/signin");
 
+app.use("/", pageRoutes);    // Pagine HTML statiche (GET /, /about, /weather, etc.)
+app.use("/", weatherRoutes); // Endpoint meteo (POST /weather)
+app.use("/", authRoutes);    // Autenticazione (POST /login)
+app.use("/", signinRoutes);  // Registrazione utente (POST /signup)
 
+// Servizio file statici (HTML, CSS, JS, immagini da frontend/public)
+app.use(express.static(path.join(__dirname, "../../../frontend/public")));
 
-
-
-
+// Avvio del server HTTP
+app.listen(port, () => {
+    console.log("Server in ascolto alla porta " + port);
+    console.log("Accedi all'indirizzo http://localhost:" + port);
+});

@@ -27,7 +27,8 @@ L'app ha diverse pagine: Home, About, Contact, Login, Sign Up e una pagina Meteo
 | **Express** | Framework minimale per creare server web e gestire route. |
 | **body-parser** | Middleware per leggere i dati inviati dai form (JSON e dati codificati). |
 | **cors** | Middleware per gestire le richieste provenienti da domini diversi (incluso nel `package.json` ma non usato attivamente nel codice). |
-| **axios** | Libreria per fare richieste HTTP (inclusa nel `package.json` ma non usata nel codice attuale). |
+| **axios** | Libreria per fare richieste HTTP; presente nel `package.json` ma non usata attivamente nel codice. |
+| **node-fetch** | Libreria per fare richieste HTTP da Node.js; usata dal controller meteo per chiamare l'API OpenWeatherMap. |
 
 ### Lato frontend
 
@@ -44,11 +45,26 @@ L'app ha diverse pagine: Home, About, Contact, Login, Sign Up e una pagina Meteo
 
 ```text
 node_exercise_2/
-├── package.json                  # dipendenze condivise (radice)
 ├── backend/
-│   ├── package.json              # dipendenze del backend
-│   └── src/
-│       └── server.js             # server Express
+│   └── service/                  # applicazione Node.js/Express
+│       ├── package.json          # dipendenze del backend
+│       └── src/
+│           ├── server.js         # entry point del server Express
+│           ├── route/
+│           │   ├── pageroutes.js # route GET per le pagine HTML
+│           │   ├── weather.js    # route POST /weather
+│           │   ├── auth.js       # route POST /login
+│           │   └── signin.js     # route POST /signup
+│           ├── controllers/
+│           │   ├── weatherController.js  # logica di chiamata all'API meteo
+│           │   ├── authcontroller.js     # logica di verifica login
+│           │   └── signincontroller.js   # logica di registrazione
+│           └── utils/
+│               ├── logger.js             # helper per la stampa degli errori
+│               ├── normalizeWeather.js   # normalizza la risposta di OpenWeatherMap
+│               ├── validateCity.js       # valida il nome della città
+│               ├── apiclient.js          # chiama l'API meteo
+│               └── constants.js          # legge le configurazioni da .env
 └── frontend/
     └── public/                   # file statici serviti al browser
         ├── index.html            # pagina Home
@@ -57,6 +73,8 @@ node_exercise_2/
         ├── login.html            # pagina Login
         ├── signup.html           # pagina Sign Up
         ├── weather.html          # pagina Meteo
+        ├── assets/               # immagini e altri asset statici
+        │   └── ...
         ├── components/
         │   ├── navbar.html       # barra di navigazione condivisa
         │   └── footer.html       # footer condiviso
@@ -75,26 +93,46 @@ node_exercise_2/
 
 ---
 
-## 4. Come funziona il backend (`backend/src/server.js`)
+## 4. Come funziona il backend
 
-Il file `server.js` crea un server con Express che:
+Il backend è organizzato in più file sotto `backend/service/src`:
 
-1. Abilita `body-parser` per leggere i dati inviati dai form.
-2. Serve tutta la cartella `frontend/public` come contenuto statico.
-3. Definisce alcune route GET per servire le pagine HTML.
-4. Definisce due route POST per gestire login e registrazione.
-5. Si mette in ascolto sulla porta `3000`.
+- **`server.js`**: entry point. Crea l'applicazione Express, registra i middleware, importa i router delle pagine, del meteo, dell'autenticazione e della registrazione, e serve i file statici.
+- **`route/pageroutes.js`**: contiene tutte le route GET che servono le pagine HTML.
+- **`route/weather.js`**: definisce la route `POST /weather` collegata al controller.
+- **`route/auth.js`**: definisce la route `POST /login` collegata al controller di autenticazione.
+- **`route/signin.js`**: definisce la route `POST /signup` collegata al controller di registrazione.
+- **`controllers/weatherController.js`**: coordina la validazione, chiama l'API OpenWeatherMap e restituisce i dati meteo al client.
+- **`controllers/authcontroller.js`**: verifica le credenziali di login fisse `admin` / `1234`.
+- **`controllers/signincontroller.js`**: gestisce la registrazione senza persistenza.
+- **`utils/apiclient.js`**: effettua la chiamata HTTP a OpenWeatherMap.
+- **`utils/validateCity.js`**: controlla che il nome della città sia valido.
+- **`utils/normalizeWeather.js`**: estrae i campi utili dalla risposta di OpenWeatherMap.
+- **`utils/logger.js`**: helper per stampare gli errori in console.
+- **`utils/constants.js`**: legge chiave API e porta dalle variabili d'ambiente.
+
+Il server, all'avvio:
+
+1. Carica le variabili d'ambiente con `dotenv`.
+2. Abilita `body-parser` per leggere i dati JSON e quelli inviati dai form.
+3. Monta `pageRoutes` per le pagine HTML.
+4. Monta `weatherRoutes` per le richieste meteo.
+5. Monta `authRoutes` per le richieste di login.
+6. Monta `signinRoutes` per le richieste di registrazione.
+7. Serve tutta la cartella `frontend/public` come contenuto statico.
+8. Si mette in ascolto sulla porta definita in `PORT` (default `3000`).
 
 ### Note importanti
 
-- Le pagine `/login`, `/signup`, `/about` e `/contact` sono servite anche tramite route GET esplicite, anche se i file `.html` sono già accessibili grazie a `express.static`.
-- `/weather.html` è accessibile **solo** come file statico, non ha una route Express.
-- Il backend **non implementa** la route `POST /weather`, quindi la pagina Meteo al momento non riceverebbe risposta dal server. Per farla funzionare bisognerebbe aggiungere in `server.js` una route che riceve la città e chiama un'API meteo esterna (ad esempio OpenWeatherMap).
-- Login e Sign Up sono **senza persistenza**: non salvano dati su database; verificano solo le credenziali fisse `admin` / `1234`.
+- La home `/` è servita esplicitamente da `pageroutes.js`.
+- Le pagine `/login`, `/signup`, `/about` e `/contact` sono servite tramite route GET esplicite in `pageroutes.js`; i file `.html` restano comunque accessibili grazie a `express.static`.
+- `/weather.html` è accessibile come file statico.
+- La route `POST /weather` è implementata: riceve `{ city }` in formato JSON e usa `node-fetch` per chiamare OpenWeatherMap, restituendo temperature, umidità, vento, descrizione e icona.
+- Login e Sign Up sono gestiti da route e controller dedicati, ma restano **senza persistenza**: non salvano dati su database; il login verifica solo le credenziali fisse `admin` / `1234`.
 
 ### Avviare il server
 
-Apri un terminale nella cartella `backend` ed esegui:
+Apri un terminale nella cartella `backend/service` ed esegui:
 
 ```bash
 node src/server.js
@@ -124,50 +162,30 @@ La pagina `weather.html` inoltre carica `weather.js`, che:
 - impedisce il ricaricamento della pagina;
 - legge il nome della città;
 - invia una richiesta POST a `/weather` in formato JSON;
-- mostra la risposta nel box sottostante.
+- riceve dal server una risposta JSON;
+- in caso di errore mostra il messaggio ricevuto;
+- in caso di successo mostra città, icona, descrizione, temperatura, umidità e vento nel box sottostante.
 
 ---
 
 ## 6. Dipendenze nei `package.json`
 
-### `package.json` (radice)
+Il file `package.json` si trova ora in `backend/service/package.json`. Non esiste più un `package.json` nella radice del progetto.
+
+### `backend/service/package.json`
 
 ```json
 {
   "dependencies": {
-    "axios": "^1.20.0",
-    "body-parser": "^2.3.0",
-    "express": "^5.2.1"
+    "body-parser": "^1.20.3",
+    "dotenv": "^18.0.7",
+    "express": "^4.21.1",
+    "node-fetch": "^3.3.2"
   }
 }
 ```
 
-### `backend/package.json`
-
-```json
-{
-  "name": "node_exercise_2",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "axios": "^1.20.0",
-    "body-parse": "^0.1.0",
-    "body-parser": "^2.3.0",
-    "cors": "^2.8.6",
-    "express": "^5.2.1"
-  }
-}
-```
-
-> **Nota:** `body-parse` (senza la `r` finale) è una dipendenza presente per errore di battitura; non viene importato nel codice. Quella corretta è `body-parser`.
+> **Nota:** il backend usa `body-parser` per leggere il corpo delle richieste, `dotenv` per caricare le variabili d'ambiente, `express` come framework e `node-fetch` per chiamare l'API meteo. Non sono presenti dipendenze non utilizzate come `axios` o `body-parse`. La versione di `dotenv` indicata (`^18.0.7`) non esiste su npm: in un progetto reale va corretta con una versione valida, ad esempio `^16.4.5`.
 
 ---
 
@@ -175,69 +193,271 @@ La pagina `weather.html` inoltre carica `weather.js`, che:
 
 Di seguito trovi ogni file del progetto con un commento accanto a ogni riga che descrive cosa sta facendo.
 
-### `backend/src/server.js`
+### `backend/service/src/server.js`
 
 ```javascript
-var express = require("express");              // Importa il modulo Express e lo assegna a una variabile.
-var path = require("path");                    // Importa il modulo 'path' per gestire i percorsi dei file.
-var app = express();                           // Crea una nuova applicazione Express.
-var port = 3000;                               // Definisce il numero di porta su cui il server ascolterà.
-var bodyParser = require("body-parser");       // Importa body-parser per leggere il corpo delle richieste HTTP.
+const express = require("express");              // Importa il framework Express.
+const path = require("path");                    // Importa il modulo per gestire i percorsi dei file.
+const app = express();                           // Crea l'applicazione Express.
+const bodyParser = require("body-parser");       // Importa il middleware per leggere il corpo delle richieste.
+require("dotenv").config();                      // Carica le variabili d'ambiente dal file .env nella root del progetto.
+const { PORT } = require("./utils/constants");   // Importa la porta dalle variabili d'ambiente.
+const port = PORT || 3000;                       // Usa la porta dall'env, altrimenti il default 3000.
 
 // il body parser serve per leggere i dati inviati dal form
-app.use(bodyParser.json());                    // Registra il middleware JSON: converte il corpo JSON in req.body.
-app.use(bodyParser.urlencoded({ extended: true })); // Registra il middleware per i dati inviati dai form HTML.
+app.use(bodyParser.json());                    // Abilita la lettura del corpo in formato JSON.
+app.use(bodyParser.urlencoded({ extended: true })); // Abilita la lettura dei dati inviati dai form HTML.
+
+const pageRoutes = require("./route/pageroutes"); // Importa le routes delle pagine statiche.
+app.use("/", pageRoutes);    // Usa le routes definite in pageroutes.js per gestire le richieste alle pagine statiche.
+
+const weatherRoutes = require("./route/weather"); // Importa le routes per le richieste meteo.
+app.use("/", weatherRoutes); // Usa le routes definite in weather.js per gestire le richieste meteo.
+
+const authRoutes = require("./route/auth"); // Importa le routes per le richieste di autenticazione.
+app.use("/", authRoutes); // Usa le routes definite in auth.js per gestire le richieste di autenticazione.
+
+const signinRoutes = require("./route/signin"); // Importa le routes per le richieste di registrazione.
+app.use("/", signinRoutes); // Usa le routes definite in signin.js per gestire le richieste di registrazione.
+
+app.use(express.static(path.join(__dirname, "../../../frontend/public"))); // Serve i file statici della cartella public.
 
 
-app.use(express.static(path.join(__dirname, "../../frontend/public"))); // Serve la cartella public come contenuto statico.
-
-//pagina di login
-app.get("/login", (req, res) =>{               // Definisce una route GET per l'indirizzo /login.
-    res.sendFile(path.join(__dirname, "../../frontend/public/login.html")); // Invia il file login.html al browser.
-});
-
-
-//post per il login, se username e password sono corretti, invia un messaggio di successo, altrimenti invia un messaggio di errore
-app.post('/login', (req, res) =>{              // Definisce una route POST per ricevere i dati del form di login.
-    const{username, password} = req.body;      // Estrae username e password dall'oggetto req.body.
-
-    if(username === 'admin' && password === '1234'){ // Controlla se le credenziali corrispondono ai valori fissi.
-        res.send('Login è avvenuto con successo!');  // Risponde con un messaggio di successo.
-    } else {                                     // Altrimenti, le credenziali sono errate.
-        res.send('Login fallito. <br> Username inserito: ' + username + ' <br> Password inserita: ' + password + '.'); // Risponde mostrando i dati inseriti.
-    }
-});
-
-
-//pagina di signup
-app.get("/signup", (req, res) =>{              // Definisce una route GET per l'indirizzo /signup.
-    res.sendFile(path.join(__dirname, "../../frontend/public/signup.html")); // Invia il file signup.html al browser.
-});
-
-//post per la registrazione, senza persistenza
-app.post('/signup', (req, res) =>{             // Definisce una route POST per ricevere i dati del form di registrazione.
-    const{username, password} = req.body;      // Estrae username e password dal corpo della richiesta.
-    res.send('Registrazione completata per: ' + username); // Risponde confermando la registrazione dell'utente.
-});
-
-
-//pagina about
-app.get("/about", (req, res) =>{               // Definisce una route GET per l'indirizzo /about.
-    res.sendFile(path.join(__dirname, "../../frontend/public/about.html")); // Invia il file about.html al browser.
-});
-
-
-//pagina contact
-app.get("/contact", (req, res) =>{             // Definisce una route GET per l'indirizzo /contact.
-    res.sendFile(path.join(__dirname, "../../frontend/public/contact.html")); // Invia il file contact.html al browser.
-});
 
 
 //definizione dello stato visualizzabile da prompt
-app.listen(port, ()=> {                        // Avvia il server e lo mette in ascolto sulla porta definita.
-console.log("Server in ascolto alla porta " + port); // Scrive in console che il server è attivo sulla porta.
+app.listen(port, ()=> {                        // Avvia il server sulla porta definita.
+console.log("Server in ascolto alla porta " + port); // Scrive in console la porta di ascolto.
 console.log('accedi all indirizzo http://localhost:'+port) // Scrive in console l'indirizzo da aprire nel browser.
+}); // Chiude il metodo listen.
+```
+
+---
+
+### `backend/service/src/route/pageroutes.js`
+
+```javascript
+//raccolgo qui tutte le routes delle pages, i percorsi utili per inserire l'invio delle pagine statiche
+//in altre parole, tutti i get saranno gestiti qui
+
+const express = require("express"); // Importa il framework Express.
+const router = express.Router(); // Crea un router Express per gestire le rotte.
+const path = require("path"); // Importa il modulo per gestire i percorsi dei file.
+
+
+router.get("/", (req, res) => { // Definisce la route GET per la home page.
+    res.sendFile(path.join(__dirname, "../../../../frontend/public/index.html")); // Invia il file index.html al browser.
+}); // Chiude la route GET /.
+
+router.get("/login", (req, res) => { // Definisce la route GET per la pagina di login.
+    res.sendFile(path.join(__dirname, "../../../../frontend/public/login.html")); // Invia il file login.html al browser.
+}); // Chiude la route GET /login.
+
+router.get("/signup", (req, res) => { // Definisce la route GET per la pagina di registrazione.
+    res.sendFile(path.join(__dirname, "../../../../frontend/public/signup.html")); // Invia il file signup.html al browser.
 });
+
+router.get("/about", (req, res) => { // Definisce la route GET per la pagina About.
+    res.sendFile(path.join(__dirname, "../../../../frontend/public/about.html")); // Invia il file about.html al browser.
+}); // Chiude la route GET /about.
+
+router.get("/contact", (req, res) => { // Definisce la route GET per la pagina Contact.
+    res.sendFile(path.join(__dirname, "../../../../frontend/public/contact.html")); // Invia il file contact.html al browser.
+}); // Chiude la route GET /contact.
+
+module.exports = router; // Esporta il router per essere utilizzato in altri file.
+```
+
+---
+
+### `backend/service/src/route/weather.js`
+
+```javascript
+// Questo file definisce la route che gestisce le richieste meteo.
+// Il controller si occupa di chiamare l'API esterna e restituire i dati al client.
+
+const express = require("express"); // Importa il framework Express.
+const router = express.Router(); // Crea un router Express per raggruppare le rotte.
+
+const { weatherController } = require("../controllers/weatherController"); // Importa la funzione getWeather dal controller.
+
+router.post("/weather", weatherController); // Associa la route POST /weather alla funzione del controller.
+
+module.exports = router; // Esporta il router per essere usato nel server.
+```
+
+---
+
+### `backend/service/src/controllers/weatherController.js`
+
+```javascript
+const fetch = require('node-fetch').default; // Importa node-fetch per fare richieste HTTP (non usato direttamente, ma lasciato per compatibilità).
+// const fetch = require("node-fetch"); // da installare npm install node-fetch@2 -- >
+// fetch una funzione che permette di fare richieste HTTP (GET, POST, PUT, DELETE) verso un server o una API. nel caso non nativo
+const { getWeather } = require("../utils/apiclient");          // Importa la funzione che chiama l'API meteo.
+const { normalizeWeather } = require("../utils/normalizeWeather"); // Importa la funzione che normalizza la risposta.
+const { validateCity } = require("../utils/validateCity");     // Importa la funzione di validazione della città.
+const { WEATHER_API_KEY } = require("../utils/constants");     // Importa la chiave API dalle variabili d'ambiente.
+const { logError } = require("../utils/logger");               // Importa l'helper per loggare gli errori.
+
+exports.weatherController = async (req, res) => {
+  const city = req.body.city;                                  // Estrae il nome della città dal corpo della richiesta JSON.
+
+  console.log("DEBUG API KEY:", WEATHER_API_KEY);              // Stampa la chiave API per il debug.
+  console.log("DEBUG CITY:", city);                            // Stampa la città per il debug.
+
+  if (!validateCity(city)) {                                   // Controlla che la città sia valida.
+    return res.json({ error: true, message: "Citta' non valida" });
+  }
+
+  try {                                                        // Inizia un blocco per catturare eventuali errori.
+    const data = await getWeather(city, WEATHER_API_KEY);      // Chiama l'API meteo passando città e chiave.
+
+    if (data.cod !== 200) {                                    // Se il codice di risposta dell'API non è 200, la città non è stata trovata.
+      return res.json({ error: true, message: "Citta' non trovata" });
+    }
+
+    return res.json(normalizeWeather(data));                   // Risponde con i dati normalizzati.
+  } catch (err) {                                              // Se la chiamata all'API fallisce.
+    logError(err);                                             // Scrive l'errore in console.
+    return res.json({ error: true, message: "Errore nel server" });
+  }
+};
+```
+
+---
+
+### `backend/service/src/utils/apiclient.js`
+
+```javascript
+const fetch = require("node-fetch").default; // Importa node-fetch per fare richieste HTTP.
+
+async function getWeather(city, apiKey) { // Definisce la funzione che chiama l'API meteo.
+    const response = await fetch( // Effettua la richiesta GET a OpenWeatherMap.
+        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`
+    );
+    return response.json(); // Restituisce la risposta convertita in JSON.
+}
+
+module.exports = { getWeather }; // Esporta la funzione per usarla nel controller.
+```
+
+---
+
+### `backend/service/src/utils/validateCity.js`
+
+```javascript
+function validateCity(city) { // Definisce la funzione di validazione della città.
+    const regex = /^[a-zA-Z\s]+$/; // Consente solo lettere e spazi.
+    return typeof city === "string" && // Verifica che sia una stringa.
+    city.trim().length >= 1 &&        // Verifica che non sia vuota.
+    regex.test(city);                 // Verifica che rispetti il formato consentito.
+}
+
+module.exports = { validateCity }; // Esporta la funzione per usarla nel controller.
+```
+
+---
+
+### `backend/service/src/utils/normalizeWeather.js`
+
+```javascript
+function normalizeWeather(data) { // Definisce la funzione che estrae i campi utili dalla risposta.
+    return { // Restituisce un oggetto con i dati meteo essenziali.
+        city: data.name,
+        temperature: data.main.temp,
+        humidity: data.main.humidity,
+        windSpeed: data.wind.speed,
+        description: data.weather[0].description,
+        icon: data.weather[0].icon
+    };
+}
+
+module.exports = { normalizeWeather }; // Esporta la funzione per usarla nel controller.
+```
+
+---
+
+### `backend/service/src/utils/logger.js`
+
+```javascript
+function logError(err) { // Definisce una funzione per loggare un errore.
+    console.error(err);  // Stampa l'errore sulla console.
+}
+
+module.exports = { logError }; // Esporta la funzione per usarla in altri file.
+```
+
+---
+
+### `backend/service/src/utils/constants.js`
+
+```javascript
+module.exports = { 
+    WEATHER_API_KEY: process.env.WEATHER_API_KEY, // Legge la chiave API dalle variabili d'ambiente.
+    PORT: process.env.PORT,                       // Legge la porta dalle variabili d'ambiente.
+};
+```
+
+> **Nota:** `constants.js` legge la configurazione dal file `.env` caricato in `server.js`. In produzione la chiave API non deve mai essere committata nel codice.
+
+---
+
+### `backend/service/src/route/auth.js`
+
+```javascript
+const express = require("express"); // Importa il framework Express.
+const router = express.Router(); // Crea un router Express per raggruppare le rotte.
+
+const { login } = require("../controllers/authcontroller"); // Importa la funzione login dal controller.
+
+router.post("/login", login); // Associa la route POST /login alla funzione del controller.
+
+module.exports = router; // Esporta il router per essere usato nel server.
+```
+
+---
+
+### `backend/service/src/route/signin.js`
+
+```javascript
+const express = require("express"); // Importa il framework Express.
+const router = express.Router(); // Crea un router Express per raggruppare le rotte.
+
+const { signinController } = require("../controllers/signincontroller"); // Importa la funzione signinController dal controller.
+
+router.post("/signup", signinController); // Associa la route POST /signup alla funzione del controller.
+
+module.exports = router; // Esporta il router per essere usato nel server.
+```
+
+---
+
+### `backend/service/src/controllers/authcontroller.js`
+
+```javascript
+exports.login = (req, res) => {              // Definisce la funzione che elabora il login.
+    const{username, password} = req.body;      // Estrae username e password dal corpo della richiesta.
+
+    if(username === 'admin' && password === '1234'){ // Controlla se le credenziali sono corrette.
+        res.send('Login è avvenuto con successo!');  // Risponde con un messaggio di successo.
+    } else {                                     // Altrimenti le credenziali sono errate.
+        res.send('Login fallito. <br> Username inserito: ' + username + ' <br> Password inserita: ' + password + '.'); // Risponde con un messaggio di errore.
+    } // Chiude l'if-else. 
+}; // Chiude la funzione login.
+```
+
+---
+
+### `backend/service/src/controllers/signincontroller.js`
+
+```javascript
+exports.signinController = (req, res) =>{             // Definisce la funzione che elabora la registrazione.
+    
+    const{username, password} = req.body;      // Estrae username e password dal corpo della richiesta.
+    
+    res.send('Registrazione completata per: ' + username); // Risponde confermando la registrazione.
+}; // Chiude la funzione signinController.
 ```
 
 ---
@@ -1191,38 +1411,52 @@ body {                                         /* Body. */
 ### `frontend/public/js/weather.js`
 
 ```javascript
-// Seleziona il form con id weather-form e aggiunge un ascoltatore per l'evento submit.
+// Aggiunge un ascoltatore per l'evento submit del form meteo.
 document.getElementById("weather-form").addEventListener("submit", async function(e) {
     e.preventDefault(); // evita il redirect                       // Blocca l'invio normale del form per evitare il ricaricamento della pagina.
 
-    const city = document.getElementById("city-input").value;    // Legge il testo inserito dall'utente nel campo città.
+    const city = document.getElementById("city-input").value.trim(); // Legge la città inserita, rimuovendo spazi iniziali e finali.
 
     const res = await fetch("/weather", {                        // Invia una richiesta POST asincrona alla route /weather del server.
         method: "POST",                                          // Specifica che il metodo HTTP è POST.
-        headers: {"Content-Type": "application/json" },          // Dice al server che il corpo della richiesta è in formato JSON.
+        headers: { "Content-Type": "application/json" },         // Dice al server che il corpo della richiesta è in formato JSON.
         body: JSON.stringify({ city })                           // Converte l'oggetto { city: city } in una stringa JSON.
     });
 
-    const data = await res.text();                               // Aspetta la risposta del server e la legge come testo semplice.
+    const data = await res.json();                               // Legge la risposta del server come oggetto JSON.
 
-    document.getElementById("weather-result").innerHTML = `      // Inserisce HTML dentro il div del risultato.
-        <div class="weather-response-box subtitle">              // Apre un div per formattare la risposta.
-            ${data}                                              // Inserisce il testo ricevuto dal server.
-        </div>                                                   // Chiude il div di formattazione.
-    `;
+    const resultBox = document.getElementById("weather-result"); // Seleziona il div dove verrà mostrato il risultato.
 
-    // Mostra il box
-    document.getElementById("weather-result").style.display = "block"; // Rende visibile il box del risultato.
+    if (data.error) {                                            // Controlla se il server ha restituito un errore.
+        resultBox.innerHTML = `                                  // Inserisce un messaggio di errore nel box.
+            <div class="weather-response-box subtitle" style="color: #c0392b;">
+                ${data.message}
+            </div>
+        `;
+    } else {                                                     // Altrimenti la risposta contiene i dati meteo.
+        resultBox.innerHTML = `                                  // Inserisce i dati meteo formattati nel box.
+            <div class="weather-response-box">
+                <h3>${data.city}</h3>
+                <img src="https://openweathermap.org/img/wn/${data.icon}@2x.png" alt="${data.description}">
+                <p class="subtitle" style="text-transform: capitalize;">${data.description}</p>
+                <p>Temperatura: <strong>${data.temperature}°C</strong></p>
+                <p>Umidità: <strong>${data.humidity}%</strong></p>
+                <p>Vento: <strong>${data.windSpeed} m/s</strong></p>
+            </div>
+        `;
+    }
 
+    resultBox.style.display = "block";                           // Rende visibile il box del risultato.
 });
 
 /*DOM Javascript della pagina lato client ha queste caratteristiche:
 - seleziona elementi del DOM (getElementById)
 - aggiunge un event listener al form per intercettare l'evento di submit
 - previene il comportamento predefinito del form (redirect)
-- legge il valore dell'input della città
+- legge e pulisce il valore dell'input della città
 - invia una richiesta POST al server con la città come payload JSON
-- riceve la risposta dal server e la visualizza in un div dedicato
+- riceve la risposta dal server come JSON
+- distingue tra errore e successo e aggiorna il div dedicato di conseguenza
 - mostra il div con il risultato della richiesta meteo*/
 ```
 
@@ -1231,10 +1465,11 @@ document.getElementById("weather-form").addEventListener("submit", async functio
 ## 8. Cose da sapere e possibili miglioramenti
 
 - **Componenti condivisi**: la navbar e il footer sono caricati via `fetch` in ogni pagina. Questo è un modo semplice per evitare duplicazione, ma ha il limite che se JavaScript è disabilitato i componenti non compaiono.
-- **Weather API non completata**: il frontend invia la richiesta a `/weather`, ma il backend non ha questa route. Per completarla serve aggiungere in `server.js` una route `POST /weather` che usi `axios` per chiamare un servizio meteo reale.
+- **Organizzazione del backend**: le route sono state suddivise in file separati (`pageroutes.js`, `weather.js`, `auth.js`, `signin.js`), la logica è isolata nei controller (`weatherController.js`, `authcontroller.js`, `signincontroller.js`) e le operazioni di supporto (validazione, chiamata API, normalizzazione dati, logging, configurazione) sono state spostate in `utils/`. Questo rende il codice più modulare e facile da espandere.
+- **Weather API completata**: il backend espone la route `POST /weather` in `route/weather.js`. Il controller coordina `validateCity`, `apiclient`, `normalizeWeather`, `logger` e `constants` per chiamare OpenWeatherMap e restituire i dati. La chiave API viene letta dalle variabili d'ambiente tramite `utils/constants.js`.
 - **Persistenza dati**: login e signup non salvano nulla. In un'applicazione reale servirebbe un database (SQLite, MongoDB, PostgreSQL, ecc.).
-- **Sicurezza**: le password non vengono mai inviate in chiaro in produzione; qui sono in chiaro solo per scopo didattico.
-- **Typo nel `package.json`**: `body-parse` è una dipendenza errata; può essere rimossa con `npm uninstall body-parse`.
+- **Sicurezza**: le password non vengono mai inviate in chiaro in produzione; qui sono in chiaro solo per scopo didattico. Anche la chiave API meteo deve rimanere nel file `.env` e non essere committata.
+- **`package.json` aggiornato**: contiene solo le dipendenze effettivamente usate (`body-parser`, `dotenv`, `express`, `node-fetch`). Non sono più presenti dipendenze errate o non utilizzate.
 
 ---
 

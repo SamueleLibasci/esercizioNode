@@ -1,9 +1,9 @@
-function logInfo(message) {
-    console.log(`[INFO] ${new Date().toISOString()} - ${message}`);
+/**
+ * Funzione helper per la registrazione centralizzata degli errori a console.
+ * @param {Error|any} err - Oggetto errore o messaggio da loggare
+ */
+function logError(err) {
+    console.error(err);
 }
 
-function logError(message) {
-    console.error(`[ERROR] ${new Date().toISOString()} - ${message}`);
-}
-
-module.exports = { logInfo, logError };
+module.exports = { logError };
