@@ -1,6 +1,6 @@
 <!--
   Componente di navigazione condiviso.
-  Viene caricato asincronamente tramite fetch() all'interno del contenitore #navbar di ciascuna pagina.
+  Viene caricato asincronamente tramite navbar.js all'interno del contenitore #navbar di ciascuna pagina.
   Tutti i link utilizzano il prefisso del Gateway /api/v1/ per garantire il corretto instradamento.
 -->
 <nav class="navbar">
@@ -12,7 +12,13 @@
         <li><a href="/api/v1/contact">Contact</a></li>
         <li><a href="/api/v1/wanted/">FBI wanted</a></li>
         <li><a href="/api/v1/weather">Weather</a></li>
-        <li><a href="/api/v1/signup">Signup</a></li>
-        <li><a href="/api/v1/login">Login</a></li>
+        <li id="nav-signup"><a href="/api/v1/signup">Signup</a></li>
+        <li id="nav-login"><a href="/api/v1/login">Login</a></li>
     </ul>
+
+    <!-- Sezione utente: visibile solo dopo il login con Google -->
+    <div class="nav-user" id="nav-user">
+        <span class="nav-welcome" id="nav-welcome"></span>
+        <button class="btn-logout" id="btn-logout" type="button">Logout</button>
+    </div>
 </nav>

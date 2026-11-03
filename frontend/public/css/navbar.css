@@ -40,6 +40,41 @@
     color: #005fcc;
 }
 
+/* ===== Sezione utente autenticato (welcome + logout) ===== */
+.nav-user {
+    display: none;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-user--visible {
+    display: flex;
+}
+
+.nav-welcome {
+    font-size: 15px;
+    color: #333;
+    font-weight: 500;
+}
+
+.btn-logout {
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    background: #e53935;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: background 0.25s ease;
+}
+
+.btn-logout:hover {
+    background: #b71c1c;
+}
+
 /* ===== Responsive: disposizione verticale su schermi < 600px ===== */
 @media (max-width: 600px) {
     .navbar {

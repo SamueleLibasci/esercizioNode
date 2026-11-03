@@ -1,50 +1,33 @@
 const express = require("express");
 const passport = require("passport");
+const env = require("../../config/env");
 
 const router = express.Router();
 
 /**
- * Authentication routes:
- * - GET /login:                  Redirects to Google OAuth flow
- * - GET /auth/google:            Initiates Google OAuth authentication
- * - GET /auth/google/callback:   Handles the Google OAuth callback
- * - GET /validate:               Checks if the current session is authenticated
- * - GET /logout:                 Destroys the session and logs the user out
+ * GET /google
+ * Avvia il flusso OAuth con Google (scope: profilo ed email).
  */
-
-// Redirect /login to Google OAuth
-router.get("/login", (req, res) => {
-    res.redirect("/google");
-});
-
-// Initiate Google OAuth flow (requests profile and email scopes)
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
-// Handle Google OAuth callback
+/**
+ * GET /google/callback
+ * Callback di Google OAuth.
+ * In caso di successo, codifica i dati utente in base64 e reindirizza alla home del gateway
+ * passando il payload come query param ?session=<base64>.
+ * In caso di errore, reindirizza alla pagina di login del gateway.
+ */
 router.get(
-    "/auth/google/callback",
-    passport.authenticate("google", { failureRedirect: "/login" }),
+    "/google/callback",
+    passport.authenticate("google", { failureRedirect: `${env.GATEWAY_URL}/api/v1/login` }),
     (req, res) => {
-        // Successful authentication – redirect to home or dashboard
-        res.redirect("/");
+        const payload = Buffer.from(JSON.stringify({
+            displayName: req.user.displayName,
+            email: req.user.email
+        })).toString("base64");
+
+        res.redirect(`${env.GATEWAY_URL}/api/v1/?session=${payload}`);
     }
 );
-
-// Validate whether the current session is authenticated
-router.get("/validate", (req, res) => {
-    if (req.isAuthenticated()) {
-        res.json({ authenticated: true, user: req.user });
-    } else {
-        res.json({ authenticated: false });
-    }
-});
-
-// Logout: destroy the session and redirect to login
-router.get("/logout", (req, res) => {
-    req.logout((err) => {
-        if (err) return res.status(500).json({ error: "Logout failed" });
-        res.redirect("/login");
-    });
-});
 
 module.exports = router;

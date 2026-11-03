@@ -12,14 +12,9 @@
 
 <body>
 
-    <!-- Contenitore Navbar condivisa -->
-    <div id="navbar">
-        <script>
-            fetch("/api/v1/components/navbar.html")
-                .then(res => res.text())
-                .then(html => document.getElementById("navbar").innerHTML = html);
-        </script>
-    </div>
+    <!-- Contenitore Navbar: popolato dinamicamente da navbar.js (carica navbar.html e gestisce lo stato di autenticazione) -->
+    <div id="navbar"></div>
+    <script src="/api/v1/js/navbar.js"></script>
 
     <!-- Sezione Meteo: form di ricerca città e box per visualizzare i risultati dinamici -->
     <div class="weather-wrapper">

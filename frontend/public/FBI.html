@@ -13,13 +13,9 @@
 </head>
 
 <body>
-    <!-- La barra di navigazione è condivisa con le altre pagine. -->
+    <!-- Contenitore Navbar: popolato dinamicamente da navbar.js (carica navbar.html e gestisce lo stato di autenticazione) -->
     <div id="navbar"></div>
-    <script>
-        fetch("/api/v1/components/navbar.html")
-            .then(response => response.text())
-            .then(html => document.getElementById("navbar").innerHTML = html);
-    </script>
+    <script src="/api/v1/js/navbar.js"></script>
 
     <main class="weather-wrapper fbi-wrapper">
         <section class="weather-box fbi-box">
